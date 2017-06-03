@@ -11,7 +11,7 @@ __author__ = 'David'
 # initialize the pygame library
 pygame.init()
 
-# initialize font
+# initialize fonts
 game_font = pygame.font.SysFont("liberation mono", 20)
 
 # set display mode
@@ -32,7 +32,7 @@ platforms = [Rect(random.randint(0, DISPLAY_WIDTH - 100), y,
              range(PLATFORM_HEIGHT * 3, DISPLAY_HEIGHT - PLATFORM_HEIGHT, PLATFORM_HEIGHT * 3)]
 
 # initialize player
-PLAYER_WIDTH = 30
+PLAYER_WIDTH = 35
 PLAYER_HEIGHT = 50
 PLAYER_SPEED = 4
 
@@ -40,11 +40,16 @@ PLAYER_STATE_IDLE = 0
 PLAYER_STATE_MOVE_LEFT = 1
 PLAYER_STATE_MOVE_RIGHT = 2
 PLAYER_STATE_FALLING = 3
-PLAYER_STATE_FLOATING = 4
-PLAYER_STATE_DEAD = 5
+PLAYER_STATE_DEAD = 4
+
+PLAYER_MAX_FLOATING_ENERGY = 500
+PLAYER_FLOATING_ENERGY_INC = 3
+PLAYER_FLOATING_ENERGY_DEC = 5
 
 player_state_previous = PLAYER_STATE_IDLE
 player_state = PLAYER_STATE_IDLE
+player_floating = False
+player_floating_energy = 500
 
 player = Rect(platforms[0].left, platforms[0].top - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)
 
@@ -63,6 +68,7 @@ fall_speed = 0.
 def check_player_input():
     global player_state
     global player_state_previous
+    global player_floating
 
     keys = pygame.key.get_pressed()
 
@@ -90,6 +96,11 @@ def check_player_input():
             player_state_previous = player_state
             player_state = PLAYER_STATE_IDLE
 
+    if keys[pygame.K_SPACE]:
+        player_floating = True
+    else:
+        player_floating = False
+
 
 def check_exit():
     for event in pygame.event.get():
@@ -115,11 +126,14 @@ def check_bottom_collision():
     for p in platforms:
         # only check near platforms
         if not (player.top > p.bottom) and p.top - player.bottom < PLATFORM_HEIGHT:
-            # check if next player position will collide
-            if player.bottom + fall_speed >= p.top > player.top and player.bottom + 1 < p.bottom:
+            # check if next player position collides
+            if player.top < p.top <= player.bottom + fall_speed < p.bottom:
                 if not (player.right < p.left or player.left > p.left + p.width):
-                    result = True
-                    player.bottom = p.top
+                    # this last condition prevents the player from getting again on top of the platform
+                    # when quickly changing the movement direction immediately after falling off
+                    if player.bottom <= p.top:
+                        result = True
+                        player.bottom = p.top
                 break
 
     return result
@@ -138,8 +152,19 @@ while True:
         fall_speed = 0
     else:
         fall_speed += 1 * GRAVITY
+
         player_state_previous = player_state
         player_state = PLAYER_STATE_FALLING
+
+    if not player_floating:
+        player_floating_energy += PLAYER_FLOATING_ENERGY_INC
+        if player_floating_energy > PLAYER_MAX_FLOATING_ENERGY:
+            player_floating_energy = PLAYER_MAX_FLOATING_ENERGY
+    elif player_state == PLAYER_STATE_FALLING and player_floating_energy > 0:
+        fall_speed = 1
+        player_floating_energy -= PLAYER_FLOATING_ENERGY_DEC
+        if player_floating_energy < 0:
+            player_floating_energy = 0
 
     player.top += fall_speed
 
@@ -154,4 +179,6 @@ while True:
 
     # render text
     text_state = game_font.render("Player state %s" % player_state, 1, (255, 255, 0))
+    text_energy = game_font.render("ENERGY: %s" % player_floating_energy, 1, (255, 255, 0))
     DISPLAY_SURFACE.blit(text_state, (3, 10))
+    DISPLAY_SURFACE.blit(text_energy, (100, 10))

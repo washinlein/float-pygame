@@ -1,11 +1,12 @@
 # coding=utf-8
 import sys
+
 import pygame
-import random
 import pygame.gfxdraw
 from pygame.locals import *
-from datetime import datetime
-from Player import Player
+
+import tilerenderer
+from player import Player
 
 __author__ = 'David'
 
@@ -23,20 +24,17 @@ DH_HALF = DISPLAY_HEIGHT / 2
 DISPLAY_AREA = DISPLAY_WIDTH * DISPLAY_HEIGHT
 DISPLAY_SURFACE = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT))
 
-# initialize platforms
-random.seed(datetime.now())
-
-PLATFORM_HEIGHT = 25
-platform = Rect(10, 30, 100, PLATFORM_HEIGHT)
-platforms = [Rect(random.randint(0, DISPLAY_WIDTH - 100), y,
-                  random.randint(100, 200), PLATFORM_HEIGHT) for y in
-             range(PLATFORM_HEIGHT * 3, DISPLAY_HEIGHT - PLATFORM_HEIGHT, PLATFORM_HEIGHT * 3)]
+# prepare room and platforms
+tile_renderer = tilerenderer.TileRenderer("./assets/tmx/platforms_test.tmx")
+temp = pygame.Surface(tile_renderer.size)
+platforms = tile_renderer.get_platform_rects()
 
 # initialize player
-PLAYER_WIDTH = 40
-PLAYER_HEIGHT = 60
+PLAYER_WIDTH = 30
+PLAYER_HEIGHT = 50
 
-GRAVITY = 0.5
+# prepare room surface
+tile_renderer.render_map(temp)
 
 player_rect = Rect(platforms[0].left, platforms[0].top - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)
 player = Player(player_rect, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
@@ -65,6 +63,7 @@ def check_exit():
                 player.fall_speed = 0
 
 # MAIN -------------------------------------------------------------------------------
+
 while True:
 
     check_exit()
@@ -77,10 +76,9 @@ while True:
 
     # draw everything
     pygame.display.update()
-    DISPLAY_SURFACE.fill((0, 0, 0))
 
-    for platform in platforms:
-        pygame.draw.rect(DISPLAY_SURFACE, 0xaaaaaa, platform, 0)
+    # draw Tiled map
+    DISPLAY_SURFACE.blit(temp, (0,0))
 
     pygame.draw.rect(DISPLAY_SURFACE, 0xccff00, player, 0)
 

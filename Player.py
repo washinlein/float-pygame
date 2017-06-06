@@ -13,7 +13,7 @@ class Player:
     __HEIGHT = 50
 
     __GRAVITY = 0.5
-    __SPEED = 5
+    __SPEED = 4
 
     __MAX_FLOATING_ENERGY = 450
     __FLOATING_ENERGY_INC = 3
@@ -85,7 +85,7 @@ class Player:
             if not (self.rect.top > s.bottom) and s.top - self.rect.bottom < s.height:
                 # check if next player position collides
                 if self.rect.top < s.top <= self.rect.bottom + self.fall_speed < s.bottom:
-                    if not (self.rect.right < s.left or self.rect.left > s.left + s.width):
+                    if not (self.rect.right < s.left or self.rect.left > s.right):
                         # this last condition prevents the player from getting again on top of the platform
                         # when quickly changing the movement direction immediately after falling off
                         if self.rect.bottom <= s.top:

@@ -21,3 +21,4 @@ all rooms have been completed.
 
 - Python 2.7
 - pygame 1.9.3
+- PyTMX 3.20.17

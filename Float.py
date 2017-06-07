@@ -26,7 +26,7 @@ DISPLAY_SURFACE = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT))
 
 # prepare room and platforms
 tile_renderer = tilerenderer.TileRenderer("./assets/tmx/platforms_test.tmx")
-temp = pygame.Surface(tile_renderer.size)
+room_surface = pygame.Surface(tile_renderer.size)
 platforms = tile_renderer.get_platform_rects()
 
 # initialize player
@@ -34,10 +34,11 @@ PLAYER_WIDTH = 30
 PLAYER_HEIGHT = 50
 
 # prepare room surface
-tile_renderer.render_map(temp)
+tile_renderer.render_map(room_surface)
 
 player_rect = Rect(platforms[0].left, platforms[0].top - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)
 player = Player(player_rect, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
+
 
 # setup fps
 FPS = 60
@@ -48,6 +49,7 @@ fall_speed = 0.
 # TODO Create lamp list and use "collidelist" with player to detect collisions
 
 lamps = []
+
 
 # FUNCTIONS --------------------------------------------------------------------------
 
@@ -62,10 +64,11 @@ def check_exit():
                 player.set_rect(Rect(platforms[0].left, platforms[0].top - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT))
                 player.fall_speed = 0
 
-# MAIN -------------------------------------------------------------------------------
+
+# MAIN -------------------------------------------------------------------------------------
 
 while True:
-
+    # UPDATE -------------------------------------------------------------------------------
     check_exit()
     player.check_input()
 
@@ -74,13 +77,13 @@ while True:
     # check platform and floor collision
     player.check_bottom_collisions(platforms)
 
-    # draw everything
+    # RENDER -------------------------------------------------------------------------------
     pygame.display.update()
 
     # draw Tiled map
-    DISPLAY_SURFACE.blit(temp, (0,0))
-
-    pygame.draw.rect(DISPLAY_SURFACE, 0xccff00, player, 0)
+    DISPLAY_SURFACE.blit(room_surface, (0, 0))
+    DISPLAY_SURFACE.blit(player.surface, (player.rect.left,player.rect.top))
+    # pygame.draw.rect(DISPLAY_SURFACE, 0xccff00, player, 2)
 
     # render text
     text_state = game_font.render("Player state %s" % player.state, 1, (255, 255, 0))

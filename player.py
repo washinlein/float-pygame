@@ -1,5 +1,6 @@
 import pygame
 
+
 class Player:
     """ Manages the player's behaviour """
     STATE_IDLE = 0
@@ -76,12 +77,12 @@ class Player:
 
         self.floating = keys[pygame.K_SPACE]
 
-    def check_bottom_collisions(self, solids):
+    def check_platform_collisions(self, platforms):
         """ Check whether the player's rectangle bottom part
             collides against the given rectangles and returns
             True or False depending on the result.
 
-        :type solids: Rect list -> boolean
+        :type platforms: Rect list -> boolean
         """
         if self.rect.bottom + 1 >= self.__display_height:
             self.rect.bottom = self.__display_height
@@ -89,7 +90,7 @@ class Player:
 
         result = False
 
-        for s in solids:
+        for s in platforms:
             # TODO - Check if Rect.colliderect using the bottom portion of the player's rect performs faster
             # only check near platforms
             if not (self.rect.top > s.bottom) and s.top - self.rect.bottom < s.height:
@@ -119,6 +120,9 @@ class Player:
 
     def set_rect(self, rect):
         self.rect = rect
+
+    def reset_energy(self):
+        self.floating_energy = self.__MAX_FLOATING_ENERGY
 
     def __update(self):
         if not self.floating:

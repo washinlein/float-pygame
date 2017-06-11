@@ -1,6 +1,7 @@
 import pygame
 
 from pytmx.util_pygame import load_pygame
+from lamp import Lamp
 import pytmx
 
 
@@ -12,6 +13,7 @@ class TileRenderer(object):
         self.size = tile_map.width * tile_map.tilewidth, tile_map.height * tile_map.tileheight
         self.tmx_data = tile_map
         self.__platform_rects = []
+        self.__lamps = []
 
     def render_map(self, surface):
         if self.tmx_data.background_color:
@@ -31,7 +33,7 @@ class TileRenderer(object):
 
     def __render_tile_layer(self, surface, layer):
 
-        # deref heavily used references for speed
+        # dereference heavily used references for speed
         tw = self.tmx_data.tilewidth
         th = self.tmx_data.tileheight
         surface_blit = surface.blit
@@ -41,12 +43,12 @@ class TileRenderer(object):
 
     def __render_object_layer(self, surface, layer):
 
-        # deref heavily used references for speed
-        draw_rect = pygame.draw.rect
+        # dereference heavily used references for speed
+        # draw_rect = pygame.draw.rect
         draw_lines = pygame.draw.lines
         surface_blit = surface.blit
 
-        rect_color = (255, 0, 0)
+        # rect_color = (255, 0, 0)
         poly_color = (0, 255, 0)
 
         for obj in layer:
@@ -56,9 +58,13 @@ class TileRenderer(object):
             elif obj.image:
                 surface_blit(obj.image, (obj.x, obj.y))
 
-            else:
+            elif obj.name == 'platform':
                 # draw_rect(surface, rect_color, (obj.x, obj.y, obj.width, obj.height), 3)
                 self.__platform_rects.append(pygame.Rect(obj.x, obj.y, obj.width, obj.height))
+
+            elif obj.name == 'lamp':
+                lamp = Lamp(pygame.Rect(obj.x, obj.y, obj.width, obj.height), obj.order)
+                self.__lamps.append(lamp)
 
     @staticmethod
     def __render_image_layer(surface, layer):
@@ -67,3 +73,6 @@ class TileRenderer(object):
 
     def get_platform_rects(self):
         return self.__platform_rects
+
+    def get_lamps(self):
+        return self.__lamps

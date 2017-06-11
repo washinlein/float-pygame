@@ -10,7 +10,8 @@ from player import Player
 
 __author__ = 'David'
 
-# initialize the pygame library
+# initialize the pygame libraries
+# sound first to avoid playback delay
 pygame.init()
 
 # initialize fonts
@@ -39,7 +40,6 @@ tile_renderer.render_map(room_surface)
 player_rect = Rect(platforms[0].left, platforms[0].top - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)
 player = Player(player_rect, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
 
-
 # setup fps
 FPS = 60
 clock = pygame.time.Clock()
@@ -59,13 +59,21 @@ def check_exit():
             pygame.quit()
             sys.exit()
         if event.type == KEYDOWN:
+            # reset room
             if event.key == K_0:
-                global player
-                player.set_rect(Rect(platforms[0].left, platforms[0].top - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT))
-                player.fall_speed = 0
+                reset_room()
 
+
+def reset_room():
+    global player
+    global lamps
+    player.set_rect(Rect(platforms[0].left, platforms[0].top - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT))
+    player.fall_speed = 0
+    player.reset_energy()
+    lamps = list(tile_renderer.get_lamps())
 
 # MAIN -------------------------------------------------------------------------------------
+lamps = list(tile_renderer.get_lamps())
 
 while True:
     # UPDATE -------------------------------------------------------------------------------
@@ -74,16 +82,27 @@ while True:
 
     clock.tick(FPS)
 
-    # check platform and floor collision
-    player.check_bottom_collisions(platforms)
+    # check collision against platforms and floor
+    player.check_platform_collisions(platforms)
+
+    # check collisions against lamps
+    for lamp in lamps:
+        if player.rect.colliderect(lamp):
+            print("LAMP COLLISION!")
+            lamps.remove(lamp)
 
     # RENDER -------------------------------------------------------------------------------
     pygame.display.update()
 
     # draw Tiled map
     DISPLAY_SURFACE.blit(room_surface, (0, 0))
-    DISPLAY_SURFACE.blit(player.surface, (player.rect.left,player.rect.top))
-    # pygame.draw.rect(DISPLAY_SURFACE, 0xccff00, player, 2)
+
+    # draw lamps
+    for lamp in lamps:
+        DISPLAY_SURFACE.blit(lamp.surface, lamp.rect)
+
+    # draw player
+    DISPLAY_SURFACE.blit(player.surface, (player.rect.left, player.rect.top))
 
     # render text
     text_state = game_font.render("Player state %s" % player.state, 1, (255, 255, 0))

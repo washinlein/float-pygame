@@ -68,19 +68,14 @@ def reset_room():
     # TODO : Avoid use of globals
     global player
     global lamps
-    global lamps_copy
 
     player.set_rect(Rect(platforms[0].left, platforms[0].top - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT))
     player.fall_speed = 0
     player.reset_energy()
     lamps = list(tile_renderer.get_lamps())
-    lamps_copy = list(lamps)
 
 # MAIN -------------------------------------------------------------------------------------
 lamps = list(tile_renderer.get_lamps())
-
-# used to safely remove while iterating
-lamps_copy = list(lamps)
 
 while True:
     # UPDATE -------------------------------------------------------------------------------
@@ -93,7 +88,7 @@ while True:
     player.check_platform_collisions(platforms)
 
     # check collisions against lamps
-    for lamp in lamps_copy:
+    for lamp in list(lamps):
         if player.rect.colliderect(lamp):
             print("LAMP COLLISION!")
             lamps.remove(lamp)

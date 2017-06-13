@@ -9,9 +9,9 @@ from pygame.locals import *
 from player import Player
 from lamp import Lamp
 
-
 # initialize the pygame libraries
-pygame.mixer.pre_init()
+pygame.mixer.pre_init(44100, -16, 2, 2048)
+pygame.mixer.init()
 pygame.init()
 
 # initialize fonts

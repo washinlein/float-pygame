@@ -110,12 +110,7 @@ while True:
     pygame.display.update()
 
     # draw Tiled map
-    dirty = False
-    if not dirty:
-        DISPLAY_SURFACE.blit(room_surface, (0, 0))
-        dirty = True
-    else:
-        print ("NOT REFRESHING")
+    DISPLAY_SURFACE.blit(room_surface, (0, 0))
 
     # draw lamps
     for index in lamps:

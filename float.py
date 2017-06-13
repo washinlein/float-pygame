@@ -3,15 +3,15 @@ import sys
 
 import pygame
 import pygame.gfxdraw
-from pygame.locals import *
-
 import tilerenderer
-from player import Player
 
-__author__ = 'David'
+from pygame.locals import *
+from player import Player
+from lamp import Lamp
+
 
 # initialize the pygame libraries
-# sound first to avoid playback delay
+pygame.mixer.pre_init()
 pygame.init()
 
 # initialize fonts
@@ -46,12 +46,10 @@ clock = pygame.time.Clock()
 
 fall_speed = 0.
 
-# TODO Create lamp list and use "collidelist" with player to detect collisions
-
 lamps = []
 
-
 # FUNCTIONS --------------------------------------------------------------------------
+
 
 def check_exit():
     for event in pygame.event.get():
@@ -65,17 +63,22 @@ def check_exit():
 
 
 def reset_room():
-    # TODO : Avoid use of globals
+    # TODO : Avoid globals
     global player
     global lamps
+    global player_rect
 
     player.set_rect(Rect(platforms[0].left, platforms[0].top - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT))
     player.fall_speed = 0
     player.reset_energy()
+    Lamp.current_order = 0
     lamps = list(tile_renderer.get_lamps())
+    player_rect = player.rect
+    for lamp in lamps:
+        lamp.reset()
 
 # MAIN -------------------------------------------------------------------------------------
-lamps = list(tile_renderer.get_lamps())
+reset_room()
 
 while True:
     # UPDATE -------------------------------------------------------------------------------
@@ -88,23 +91,38 @@ while True:
     player.check_platform_collisions(platforms)
 
     # check collisions against lamps
-    for lamp in list(lamps):
-        if player.rect.colliderect(lamp):
-            print("LAMP COLLISION!")
-            lamps.remove(lamp)
+    index = player_rect.collidelist(lamps)
+    if index != -1:
+        if not lamps[index].is_lit():
+            reset_room()
+            continue
+
+        lamps[index].sound_pickup.play()
+        lamps.remove(lamps[index])
+        Lamp.current_order += 1
+
+    for l in lamps:
+        if l.order == Lamp.current_order:
+            l.lit()
+            break
 
     # RENDER -------------------------------------------------------------------------------
     pygame.display.update()
 
     # draw Tiled map
-    DISPLAY_SURFACE.blit(room_surface, (0, 0))
+    dirty = False
+    if not dirty:
+        DISPLAY_SURFACE.blit(room_surface, (0, 0))
+        dirty = True
+    else:
+        print ("NOT REFRESHING")
 
     # draw lamps
-    for lamp in lamps:
-        DISPLAY_SURFACE.blit(lamp.surface, lamp.rect)
+    for index in lamps:
+        DISPLAY_SURFACE.blit(index.surface, index.rect)
 
     # draw player
-    DISPLAY_SURFACE.blit(player.surface, (player.rect.left, player.rect.top))
+    DISPLAY_SURFACE.blit(player.surface, (player_rect.left, player_rect.top))
 
     # render text
     text_state = game_font.render("Player state %s" % player.state, 1, (255, 255, 0))

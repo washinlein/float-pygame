@@ -23,6 +23,8 @@ class Player:
 
     # player sounds
     __SOUND_CONTACT = './assets/sound/platform_contact.wav'
+    __sound_contact = None
+    __sound_contact = None
 
     def __init__(self, rect, display_size):
         """
@@ -41,7 +43,7 @@ class Player:
         self.__display_width = display_size[0]
         self.__display_height = display_size[1]
 
-        self.surface = pygame.image.load(self.__IMAGE_PATH)
+        self.surface = pygame.image.load(self.__IMAGE_PATH).convert_alpha()
         # used for collisions and player movement
         self.rect = rect
 

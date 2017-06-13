@@ -2,7 +2,6 @@
 
 #### Introduction
 The goal of this project is to create a simple game and learn python using pygame library. 
-Comments and positive feedback are very welcome!
 
 #### Float - Game Description
 "Float" is a simple platform game with some puzzle and skill mechanics. The goal of the game is to collect all lamps in each room in order to get to the next. The game finishes when 
@@ -16,6 +15,12 @@ all rooms have been completed.
 - Collecting lamps:
      - Only lit lamps can be collected so that if the player collects an unlit lamp, the room resets and he'll have to try again.
      - The order in which the lamps are lit depends on the current room setup and the player will have to figure out how to get to the next lamp without falling below it, as he won't be able to reach for it again.
+
+- Controls:
+    - Left arrow: Move left
+    - Right arrow: Move right
+    - Space bar: Float
+    - Esc: Quit game
 
 #### Python version and current dependencies
 

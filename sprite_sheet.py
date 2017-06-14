@@ -17,4 +17,3 @@ class SpriteSheet:
                 tmp_surface = pygame.Surface((self.__sprite_width, self.__sprite_height), flags=pygame.HWSURFACE)
                 tmp_surface.blit(self.image_surface, (0, 0), r)
                 self.frames.append(tmp_surface)
-

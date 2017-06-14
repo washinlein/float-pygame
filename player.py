@@ -105,8 +105,9 @@ class Player:
                             result = True
                             self.rect.bottom = s.top
                             if self.__sound_contact_reset:
-                                self.__sound_contact.play()
                                 self.__sound_contact_reset = False
+                                if not self.floating:
+                                    self.__sound_contact.play()
                     break
 
         if result:
